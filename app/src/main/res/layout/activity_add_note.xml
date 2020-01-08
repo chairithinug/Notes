@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/et_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20sp"
+        android:gravity="top|left"
+        android:hint="Title"
+        android:textSize="25sp" />
+
+    <EditText
+        android:id="@+id/et_for_whom"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/et_title"
+        android:layout_marginHorizontal="20sp"
+        android:gravity="top|left"
+        android:hint="For This Person"
+        android:textSize="25sp" />
+
+    <EditText
+        android:id="@+id/et_data"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/et_for_whom"
+        android:layout_marginHorizontal="20sp"
+        android:gravity="top|left"
+        android:hint="My Note"
+        android:textSize="25sp" />
+
+    <RelativeLayout
+        android:id="@+id/rl_inner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/btn_create"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryDark"
+            android:text="Create"
+            android:textColor="#fff"
+            android:textSize="25sp" />
+    </RelativeLayout>
+
+</RelativeLayout>
