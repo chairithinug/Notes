@@ -4,14 +4,23 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.util.Calendar;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class AddNoteActivity extends Activity {
 
@@ -29,7 +38,15 @@ public class AddNoteActivity extends Activity {
         title = findViewById(R.id.et_title);
         data = findViewById(R.id.et_data);
 
+//         Font
+        Typeface tf = ResourcesCompat.getFont(getApplicationContext(),
+                R.font.angsa);
+        for_whom.setTypeface(tf);
+        title.setTypeface(tf);
+        data.setTypeface(tf);
+
         Button create = findViewById(R.id.btn_create);
+        create.setTypeface(tf);
         create.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (data.getText().toString().isEmpty()) {
@@ -46,12 +63,11 @@ public class AddNoteActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setPositiveButton("Exit", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                Log.d(TAG,"Yes, delete!");
+                Log.d(TAG, "Yes, delete!");
                 Intent intent = new Intent();
                 setResult(RESULT_CANCELED, intent);
                 finish();
@@ -59,7 +75,7 @@ public class AddNoteActivity extends Activity {
         });
         builder.setNegativeButton("Stay", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                Log.d(TAG,"No, stay!");
+                Log.d(TAG, "No, stay!");
             }
         });
 
@@ -67,11 +83,12 @@ public class AddNoteActivity extends Activity {
                 .setTitle("Action Required");
         AlertDialog dialog = builder.create();
         dialog.show();
-        return;
     }
 
-    public NotesInstance createNote(){
-        String date = Calendar.getInstance().getTime().toString();
+    public NotesInstance createNote() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+//        String date = Calendar.getInstance().getTime().toString();
+        String date = dateFormat.format(Calendar.getInstance().getTime());
         NotesInstance ret = new NotesInstance();
         ret.setCreatedDate(date);
         ret.setLastModifiedDate(date);

@@ -12,6 +12,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.widget.PopupMenu;
 
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -36,10 +37,12 @@ public class MainActivity extends AppCompatActivity {
     public String asc_desc = " ASC"; // ascending order default
 
     public NotesAdapter adapter;
-    public RecyclerView recyclerView;
+    public static RecyclerView recyclerView;
     public Button btnShowMenu;
     public Context context;
 
+    private static final int REQUEST_CODE_ADD_NOTE = 0;
+    private static final int REQUEST_CODE_SEARCH_NOTE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +55,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent newIntent = new Intent(view.getContext(), AddNoteActivity.class);
-                startActivityForResult(newIntent, 0);
+                startActivityForResult(newIntent, REQUEST_CODE_ADD_NOTE);
             }
         });
         FloatingActionButton fab_search = findViewById(R.id.fab_search);
         fab_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // TODO New Activity? Or just snackbar?
+//                Intent newIntent = new Intent(view.getContext(), SearchNoteActivity.class);
+//                startActivityForResult(newIntent, REQUEST_CODE_SEARCH_NOTE);
                 Snackbar.make(view, "Search", Snackbar.LENGTH_SHORT)
                         .setAction("Action", null).show();
             }
@@ -126,12 +132,18 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_CANCELED) {
             // need to point to any view in the main activity
             Snackbar.make(recyclerView, "Error Adding a Note", Snackbar.LENGTH_SHORT).show();
-        } else { // only 1 requestCode, for AddNoteActivity
+        } else if (requestCode == REQUEST_CODE_ADD_NOTE) {
             Bundle ret = data.getExtras();
             NotesInstance ni = (NotesInstance) ret.getParcelable("notesInstance");
             saveInstanceData(ni);
             Snackbar.make(recyclerView, "Note Added", Snackbar.LENGTH_SHORT).show();
             refreshRecyclerView();
+        } else if (requestCode == REQUEST_CODE_SEARCH_NOTE) {
+//            Bundle ret = data.getExtras();
+//            NotesInstance ni = (NotesInstance) ret.getParcelable("notesInstance");
+//            saveInstanceData(ni);
+//            Snackbar.make(recyclerView, "", Snackbar.LENGTH_SHORT).show();
+//            refreshRecyclerView();
         }
     }
 
@@ -140,17 +152,17 @@ public class MainActivity extends AppCompatActivity {
         boolean checked = ((RadioButton) view).isChecked();
 
         // Check which radio button was clicked
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.radio_ascending:
                 if (checked)
                     asc_desc = " ASC";
-                    refreshRecyclerView();
-                    break;
+                refreshRecyclerView();
+                break;
             case R.id.radio_descending:
                 if (checked)
                     asc_desc = " DESC";
-                    refreshRecyclerView();
-                    break;
+                refreshRecyclerView();
+                break;
         }
     }
 
@@ -186,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
             ni.setData(cursor.getString(4));
             notesList.add(ni);
         }
+        cursor.close();
         readDB.close();
     }
 
@@ -213,7 +226,8 @@ public class MainActivity extends AppCompatActivity {
             loadInstanceData(NotesInstanceContract.NotesEntry.COLUMN_NAME_LAST_MODIFIED_DATE);
             Log.d(TAG, "Default");
         }
-        btnShowMenu.setText("Sorted By " + selectedTitle.toString());
+        String toBeShown = "Sorted By " + selectedTitle;
+        btnShowMenu.setText(toBeShown);
         adapter = new NotesAdapter(notesList);
         recyclerView.setAdapter(adapter);
     }
