@@ -1,5 +1,7 @@
-Fix Sorting By Date Error
-
-Fix Toast Msg
+Fix Sorting By Date Error (to use millisec time)
 
 Search
+
+Delete Multiple Notes
+
+Font only some places (check styles.xml)

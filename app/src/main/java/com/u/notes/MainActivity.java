@@ -105,25 +105,31 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_CANCELED) {
             // need to point to any view in the main activity
-            Snackbar.make(recyclerView, "Error Adding a Note", Snackbar.LENGTH_SHORT).show();
-        } else if (requestCode == ConstantVar.REQUEST_CODE_ADD_NOTE) {
-            Bundle ret = data.getExtras();
-            NotesInstance ni = (NotesInstance) ret.getParcelable("notesInstance");
-            NotesInstance old_ni = (NotesInstance) ret.getParcelable("oldNotesInstance");
-            boolean isCreate = ret.getBoolean("isCreate");
-            if (isCreate) {
-                saveInstanceData(ni);
-            } else {
-                modifyInstanceData(ni); // TODO
-            }
-            Snackbar.make(recyclerView, "Note Added", Snackbar.LENGTH_SHORT).show();
-            refreshRecyclerView();
-        } else if (requestCode == ConstantVar.REQUEST_CODE_SEARCH_NOTE) {
+            Snackbar.make(recyclerView, "Error Adding/Editing a Note", Snackbar.LENGTH_SHORT).show();
+        } else if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == ConstantVar.REQUEST_CODE_ADD_NOTE) {
+                Bundle ret = data.getExtras();
+                NotesInstance ni = (NotesInstance) ret.getParcelable("notesInstance");
+                boolean isCreate = ret.getBoolean("isCreate");
+                String toastToBeDisplayed;
+                if (isCreate) {
+                    saveInstanceData(ni);
+                    toastToBeDisplayed = "Note Added";
+                } else {
+                    modifyInstanceData(ni);
+                    toastToBeDisplayed = "Note Edited";
+                }
+                Snackbar.make(recyclerView, toastToBeDisplayed, Snackbar.LENGTH_SHORT).show();
+                refreshRecyclerView();
+            } else if (requestCode == ConstantVar.REQUEST_CODE_SEARCH_NOTE) {
 //            Bundle ret = data.getExtras();
 //            NotesInstance ni = (NotesInstance) ret.getParcelable("notesInstance");
 //            saveInstanceData(ni);
 //            Snackbar.make(recyclerView, "", Snackbar.LENGTH_SHORT).show();
 //            refreshRecyclerView();
+            }
+        } else {
+            Log.d(TAG, "Result First User");
         }
     }
 
@@ -157,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
         values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_TITLE, ni.getTitle());
         values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_DATA, ni.getData());
         values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_HAS_POSTED, 0); // where 0 is false for sqlite
-        long newRowId = writeDB.insert(NotesInstanceContract.NotesEntry.TABLE_NAME, null, values);
-        // TODO update noteslist?
+        writeDB.insert(NotesInstanceContract.NotesEntry.TABLE_NAME, null, values);
+
         notesList.add(ni);
         writeDB.close();
     }
@@ -185,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
     private void modifyInstanceData(NotesInstance new_ni) {
         final NoteDBHelper dbHelper = new NoteDBHelper(context);
         final SQLiteDatabase modifyDB = dbHelper.getReadableDatabase();
-        // TODO update noteslist?
+
         notesList.remove(AddNoteActivity.argInstance); // remove old instance
         notesList.add(new_ni); // create a new one
         ContentValues values = new ContentValues();
