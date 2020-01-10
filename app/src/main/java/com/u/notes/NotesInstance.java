@@ -98,18 +98,18 @@ public class NotesInstance implements Parcelable {
         dest.writeString(this.data);
     }
 
-//    @Override
-//    public String toString() {
-//        JSONObject jo = new JSONObject();
-//        try {
-//            jo.put("createdDate", createdDate);
-//            jo.put("lastModifiedDate", lastModifiedDate);
-//            jo.put("forWhom", forWhom);
-//            jo.put("title", title);
-//            jo.put("data", data);
-//            return jo.toString();
-//        } catch (JSONException e) {
-//            return e.getMessage();
-//        }
-//    }
+    @Override
+    public String toString() {
+        JSONObject jo = new JSONObject();
+        try {
+            jo.put("createdDate", createdDate);
+            jo.put("lastModifiedDate", lastModifiedDate);
+            jo.put("forWhom", forWhom);
+            jo.put("title", title);
+            jo.put("data", data);
+            return jo.toString();
+        } catch (JSONException e) {
+            return e.getMessage();
+        }
+    }
 }

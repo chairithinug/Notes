@@ -30,19 +30,16 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    public ArrayList<NotesInstance> notesList;
+    public static ArrayList<NotesInstance> notesList;
     public static final String TAG = "MAIN";
 
     public String selectedTitle = "Last Modified Date";
-    public String asc_desc = " ASC"; // ascending order default
+    public String asc_desc = " DESC"; // descending order default
 
     public NotesAdapter adapter;
     public static RecyclerView recyclerView;
     public Button btnShowMenu;
     public Context context;
-
-    private static final int REQUEST_CODE_ADD_NOTE = 0;
-    private static final int REQUEST_CODE_SEARCH_NOTE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent newIntent = new Intent(view.getContext(), AddNoteActivity.class);
-                startActivityForResult(newIntent, REQUEST_CODE_ADD_NOTE);
+                newIntent.putExtra("isCreate", true);
+                startActivityForResult(newIntent, ConstantVar.REQUEST_CODE_ADD_NOTE);
             }
         });
         FloatingActionButton fab_search = findViewById(R.id.fab_search);
@@ -65,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 // TODO New Activity? Or just snackbar?
 //                Intent newIntent = new Intent(view.getContext(), SearchNoteActivity.class);
 //                startActivityForResult(newIntent, REQUEST_CODE_SEARCH_NOTE);
+
                 Snackbar.make(view, "Search", Snackbar.LENGTH_SHORT)
                         .setAction("Action", null).show();
             }
@@ -97,31 +96,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         notesList = new ArrayList<NotesInstance>();
         loadInstanceData(NotesInstanceContract.NotesEntry.COLUMN_NAME_LAST_MODIFIED_DATE);
-//        TODO
-//        DEBUGGING
-//        NotesInstance t = new NotesInstance();
-//        t.setTitle("test");
-//        t.setLastModifiedDate("1234");
-//        t.setData("aaaa");
-//        t.setCreatedDate("333");
-//        t.setForWhom("u");
-//        saveInstanceData(t);
-//
-//        NotesInstance t1 = new NotesInstance();
-//        t1.setTitle("teqst");
-//        t1.setLastModifiedDate("3333");
-//        t1.setData("fff");
-//        t1.setCreatedDate("asa");
-//        t1.setForWhom("r");
-//        saveInstanceData(t1);
-//
-//        NotesInstance t2 = new NotesInstance();
-//        t2.setTitle("teasdqst");
-//        t2.setLastModifiedDate("788");
-//        t2.setData("dhh");
-//        t2.setCreatedDate("bbbb");
-//        t2.setForWhom("q");
-//        saveInstanceData(t2);
 
         refreshRecyclerView();
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -132,13 +106,19 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_CANCELED) {
             // need to point to any view in the main activity
             Snackbar.make(recyclerView, "Error Adding a Note", Snackbar.LENGTH_SHORT).show();
-        } else if (requestCode == REQUEST_CODE_ADD_NOTE) {
+        } else if (requestCode == ConstantVar.REQUEST_CODE_ADD_NOTE) {
             Bundle ret = data.getExtras();
             NotesInstance ni = (NotesInstance) ret.getParcelable("notesInstance");
-            saveInstanceData(ni);
+            NotesInstance old_ni = (NotesInstance) ret.getParcelable("oldNotesInstance");
+            boolean isCreate = ret.getBoolean("isCreate");
+            if (isCreate) {
+                saveInstanceData(ni);
+            } else {
+                modifyInstanceData(ni); // TODO
+            }
             Snackbar.make(recyclerView, "Note Added", Snackbar.LENGTH_SHORT).show();
             refreshRecyclerView();
-        } else if (requestCode == REQUEST_CODE_SEARCH_NOTE) {
+        } else if (requestCode == ConstantVar.REQUEST_CODE_SEARCH_NOTE) {
 //            Bundle ret = data.getExtras();
 //            NotesInstance ni = (NotesInstance) ret.getParcelable("notesInstance");
 //            saveInstanceData(ni);
@@ -202,12 +182,22 @@ public class MainActivity extends AppCompatActivity {
         readDB.close();
     }
 
-    private void deleteInstanceData(String date) {
+    private void modifyInstanceData(NotesInstance new_ni) {
         final NoteDBHelper dbHelper = new NoteDBHelper(context);
-        final SQLiteDatabase deleteDB = dbHelper.getReadableDatabase();
+        final SQLiteDatabase modifyDB = dbHelper.getReadableDatabase();
         // TODO update noteslist?
-        deleteDB.delete(NotesInstanceContract.NotesEntry.TABLE_NAME, NotesInstanceContract.NotesEntry.COLUMN_NAME_CREATED_DATE + "=?", new String[]{date});
-        deleteDB.close();
+        notesList.remove(AddNoteActivity.argInstance); // remove old instance
+        notesList.add(new_ni); // create a new one
+        ContentValues values = new ContentValues();
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_CREATED_DATE, new_ni.getCreatedDate());
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_LAST_MODIFIED_DATE, new_ni.getLastModifiedDate());
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_FOR_WHOM, new_ni.getForWhom());
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_TITLE, new_ni.getTitle());
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_DATA, new_ni.getData());
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_HAS_POSTED, 0); // where 0 is false for sqlite
+
+        modifyDB.update(NotesInstanceContract.NotesEntry.TABLE_NAME, values, NotesInstanceContract.NotesEntry.COLUMN_NAME_CREATED_DATE + "=?", new String[]{new_ni.getCreatedDate()});
+        modifyDB.close();
     }
 
     private void refreshRecyclerView() {

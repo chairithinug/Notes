@@ -1,6 +1,9 @@
 package com.u.notes;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +16,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
+
     private String TAG = "NotesAdapter:";
 
     public final int MAX_DATA_DISPLAY_LENGTH = 20;
     public final int MAX_TITLE_DISPLAY_LENGTH = 15;
     public final int MAX_FOR_WHOM_DISPLAY_LENGTH = 10;
-
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         //        TextView text_created_date;
@@ -46,7 +49,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
     @NonNull
     @Override
     public NotesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        Context context = viewGroup.getContext();
+        final Context context = viewGroup.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         // Inflate the custom layout
         View noteItemView = inflater.inflate(R.layout.note_list_item, viewGroup, false);
@@ -56,8 +59,16 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
             public void onClick(View view) {
                 int pos = MainActivity.recyclerView.getChildAdapterPosition(view);
                 if (pos >= 0 && pos < getItemCount()) {
-                    Toast.makeText(view.getContext(), "" + pos, Toast.LENGTH_SHORT).show();
-                    // TODO call ReadNote
+//                    Log.d(TAG, "short click");
+//                    Toast.makeText(view.getContext(), "" + pos, Toast.LENGTH_SHORT).show();
+                    NotesInstance ni = MainActivity.notesList.get(pos);
+                    Log.d(TAG, ni.toString());
+
+                    Intent newIntent = new Intent(view.getContext(), AddNoteActivity.class);
+                    newIntent.putExtra("isCreate", false);
+                    newIntent.putExtra("notesInstance", ni);
+                    ((Activity) context).startActivityForResult(newIntent, ConstantVar.REQUEST_CODE_ADD_NOTE);
+
                 }
             }
         });
