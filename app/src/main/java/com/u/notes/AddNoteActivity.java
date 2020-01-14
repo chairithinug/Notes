@@ -1,8 +1,5 @@
 package com.u.notes;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -12,12 +9,14 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class AddNoteActivity extends Activity {
+public class AddNoteActivity extends FragmentActivity {
 
     public static final String TAG = "AddNoteActivity";
 
@@ -26,14 +25,15 @@ public class AddNoteActivity extends Activity {
     public EditText data;
 
     public boolean anyMod = false;
-
     public boolean isCreate;
-
     public static NotesInstance argInstance;
+    public static FragmentManager fm;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_note);
+
+        fm = getSupportFragmentManager();
 
         anyMod = false;
 
@@ -86,7 +86,6 @@ public class AddNoteActivity extends Activity {
     // to get rid of default back button on Android
     @Override
     public void onBackPressed() {
-
         // try create an unempty note, ask before
         if (isCreate && (!for_whom.getText().toString().isEmpty() || !title.getText().toString().isEmpty() || !data.getText().toString().isEmpty()))
             anyMod = true;
@@ -94,26 +93,8 @@ public class AddNoteActivity extends Activity {
         if (!isCreate && !isSameText(argInstance))
             anyMod = true;
         if (anyMod) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-            builder.setPositiveButton("Exit", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    Log.d(TAG, "Yes, delete!");
-                    Intent intent = new Intent();
-                    setResult(RESULT_CANCELED, intent);
-                    finish();
-                }
-            });
-            builder.setNegativeButton("Stay", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    Log.d(TAG, "No, stay!");
-                }
-            });
-
-            builder.setMessage("Do you want to exit without saving this note?")
-                    .setTitle("Action Required");
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            BackOnCreateDialogFragment frag = new BackOnCreateDialogFragment();
+            frag.show(AddNoteActivity.fm, "BackOnCreateDialog");
         } else {
             Log.d(TAG, "No Mod, Back Pressed");
             Intent intent = new Intent();
@@ -123,9 +104,7 @@ public class AddNoteActivity extends Activity {
     }
 
     public NotesInstance createNote() {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-//        String date = Calendar.getInstance().getTime().toString();
-        String date = dateFormat.format(Calendar.getInstance().getTime());
+        String date = getDate();
         NotesInstance ret = new NotesInstance();
         ret.setCreatedDate(date);
         ret.setLastModifiedDate(date);
@@ -136,9 +115,7 @@ public class AddNoteActivity extends Activity {
     }
 
     public NotesInstance modifyNote(NotesInstance ni) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        String date = dateFormat.format(Calendar.getInstance().getTime());
-
+        String date = getDate();
         ni.setLastModifiedDate(date);
         ni.setForWhom(for_whom.getText().toString().isEmpty() ? "Me" : for_whom.getText().toString());
         ni.setTitle(title.getText().toString().isEmpty() ? "Untitled Note" : title.getText().toString());
@@ -146,10 +123,22 @@ public class AddNoteActivity extends Activity {
         return ni;
     }
 
+    // Compare the old instance data with the current data in fields
     public boolean isSameText(NotesInstance ni1) {
-//        if (ni1 != null && ni2 != null)
-            return ni1.getData().equals(data.getText().toString()) && ni1.getTitle().equals(title.getText().toString()) && ni1.getForWhom().equals(for_whom.getText().toString());
-//        else
-//            return false;
+        return ni1.getData().equals(data.getText().toString()) && ni1.getTitle().equals(title.getText().toString()) && ni1.getForWhom().equals(for_whom.getText().toString());
+    }
+
+    public String getDate() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+//        String getDate = Calendar.getInstance().getTime().toString();
+        String date = dateFormat.format(Calendar.getInstance().getTime());
+
+//        Log.d(TAG, date);
+//        long mili = Calendar.getInstance().getTimeInMillis();
+//        Date dd = new Date(mili);
+//        String d = dateFormat.format(dd);
+//        Log.d(TAG, dd.toString());
+//        Log.d(TAG, d);
+        return date;
     }
 }

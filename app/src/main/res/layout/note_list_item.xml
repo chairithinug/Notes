@@ -14,7 +14,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="10dp"
             android:layout_weight="1"
             android:maxLines="1"
             android:textSize="24sp"
@@ -24,11 +24,12 @@
             android:id="@+id/tv_add"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginHorizontal="20dp"
+            android:layout_gravity="end"
+            android:layout_marginHorizontal="10dp"
             android:layout_toRightOf="@id/tv_main"
             android:layout_weight="1"
             android:maxLines="1"
+            android:textAlignment="viewEnd"
             android:textSize="24sp" />
     </LinearLayout>
 
@@ -43,21 +44,22 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="10dp"
             android:layout_weight="1"
             android:maxLines="1"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/tv_date"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginHorizontal="20dp"
+            android:layout_gravity="end"
+            android:layout_marginHorizontal="10dp"
             android:layout_toRightOf="@id/tv_sub"
             android:layout_weight="1"
             android:maxLines="1"
-            android:textSize="20sp" />
+            android:textAlignment="viewEnd"
+            android:textSize="18sp" />
     </LinearLayout>
 
 </RelativeLayout>

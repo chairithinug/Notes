@@ -11,10 +11,10 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.widget.PopupMenu;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,7 +28,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
 
     public static ArrayList<NotesInstance> notesList;
     public static final String TAG = "MAIN";
@@ -36,17 +36,21 @@ public class MainActivity extends AppCompatActivity {
     public String selectedTitle = "Last Modified Date";
     public String asc_desc = " DESC"; // descending order default
 
-    public NotesAdapter adapter;
+    public static NotesAdapter adapter;
     public static RecyclerView recyclerView;
     public Button btnShowMenu;
     public Context context;
+
+    public static FragmentManager fm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        fm = getSupportFragmentManager();
         context = getApplicationContext();
+
         FloatingActionButton fab_add = findViewById(R.id.fab_add);
         fab_add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
         fab_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO New Activity? Or just snackbar?
+                // TODO New Activity
 //                Intent newIntent = new Intent(view.getContext(), SearchNoteActivity.class);
-//                startActivityForResult(newIntent, REQUEST_CODE_SEARCH_NOTE);
+//                startActivityForResult(newIntent, ConstantVar.REQUEST_CODE_SEARCH_NOTE);
 
                 Snackbar.make(view, "Search", Snackbar.LENGTH_SHORT)
                         .setAction("Action", null).show();
@@ -204,6 +208,29 @@ public class MainActivity extends AppCompatActivity {
 
         modifyDB.update(NotesInstanceContract.NotesEntry.TABLE_NAME, values, NotesInstanceContract.NotesEntry.COLUMN_NAME_CREATED_DATE + "=?", new String[]{new_ni.getCreatedDate()});
         modifyDB.close();
+    }
+
+    public static void removeFromDB(View view, NotesInstance ni) {
+        final NoteDBHelper dbHelper = new NoteDBHelper(view.getContext());
+        final SQLiteDatabase removeDB = dbHelper.getReadableDatabase();
+        removeDB.delete(NotesInstanceContract.NotesEntry.TABLE_NAME, NotesInstanceContract.NotesEntry.COLUMN_NAME_CREATED_DATE + "=?", new String[]{ni.getCreatedDate()});
+        removeDB.close();
+    }
+
+    public static void addBackToDB(View view, NotesInstance ni) {
+        final NoteDBHelper dbHelper = new NoteDBHelper(view.getContext());
+        final SQLiteDatabase addBackToDB = dbHelper.getReadableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_CREATED_DATE, ni.getCreatedDate());
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_LAST_MODIFIED_DATE, ni.getLastModifiedDate());
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_FOR_WHOM, ni.getForWhom());
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_TITLE, ni.getTitle());
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_DATA, ni.getData());
+        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_HAS_POSTED, 0); // where 0 is false for sqlite
+
+        addBackToDB.insert(NotesInstanceContract.NotesEntry.TABLE_NAME, null, values);
+        addBackToDB.close();
     }
 
     private void refreshRecyclerView() {

@@ -1,12 +1,8 @@
 package com.u.notes;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,17 +13,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
 
     private String TAG = "NotesAdapter";
-
-    public final int MAX_DATA_DISPLAY_LENGTH = 20;
-    public final int MAX_TITLE_DISPLAY_LENGTH = 15;
-    public final int MAX_FOR_WHOM_DISPLAY_LENGTH = 10;
 
     private int selectedPos = RecyclerView.NO_POSITION;
 
@@ -118,13 +109,13 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         tvDate.setText(inst.getLastModifiedDate());
 
         TextView tvMain = viewHolder.text_title;
-        tvMain.setText(inst.getTitle().length() > MAX_TITLE_DISPLAY_LENGTH ? inst.getTitle().substring(0, MAX_TITLE_DISPLAY_LENGTH) + "..." : inst.getTitle());
+        tvMain.setText(inst.getTitle().length() > ConstantVar.MAX_TITLE_DISPLAY_LENGTH ? inst.getTitle().substring(0, ConstantVar.MAX_TITLE_DISPLAY_LENGTH) + "..." : inst.getTitle());
 
         TextView tvSub = viewHolder.text_data;
-        tvSub.setText(inst.getData().length() > MAX_DATA_DISPLAY_LENGTH ? inst.getData().substring(0, MAX_DATA_DISPLAY_LENGTH) + "..." : inst.getData());
+        tvSub.setText(inst.getData().length() > ConstantVar.MAX_DATA_DISPLAY_LENGTH ? inst.getData().substring(0, ConstantVar.MAX_DATA_DISPLAY_LENGTH) + "..." : inst.getData());
 
         TextView tvAdd = viewHolder.text_for_whom;
-        tvAdd.setText(inst.getForWhom().length() > MAX_FOR_WHOM_DISPLAY_LENGTH ? inst.getForWhom().substring(0, MAX_FOR_WHOM_DISPLAY_LENGTH) + "..." : inst.getForWhom());
+        tvAdd.setText(inst.getForWhom().length() > ConstantVar.MAX_FOR_WHOM_DISPLAY_LENGTH ? inst.getForWhom().substring(0, ConstantVar.MAX_FOR_WHOM_DISPLAY_LENGTH) + "..." : inst.getForWhom());
     }
 
     @Override
@@ -133,39 +124,8 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
     }
 
     public void deleteNote(final View view, NotesInstance ni) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-
-        remove = ni;
-
-        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                Log.d(TAG, "Yes, delete!");
-                setHighLightSelected(RecyclerView.NO_POSITION);
-                MainActivity.notesList.remove(remove);
-                removeFromDB(view, remove);
-
-                Snackbar.make(MainActivity.recyclerView, "Note Deleted", Snackbar.LENGTH_LONG)
-                        .setAction("Undo", new View.OnClickListener(){
-                            public void onClick(View v) {
-                                NotesInstance ni = NotesAdapter.remove;
-                                addBackToDB(v, ni);
-                                MainActivity.notesList.add(ni);
-                                notifyDataSetChanged(); // refresh recyclerView data
-                            }
-                        }).show();
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                Log.d(TAG, "No, stay!");
-                setHighLightSelected(RecyclerView.NO_POSITION);
-            }
-        });
-
-        builder.setMessage("Do you want to delete this note?")
-                .setTitle("Action Required");
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        DeleteDialogFragment frag = new DeleteDialogFragment(view, ni);
+        frag.show(MainActivity.fm, "DeleteDialog");
     }
 
     public void setHighLightSelected(int pos) {
@@ -173,28 +133,4 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         selectedPos = pos;
         notifyItemChanged(selectedPos);
     }
-
-    public void removeFromDB(View view, NotesInstance ni) {
-        final NoteDBHelper dbHelper = new NoteDBHelper(view.getContext());
-        final SQLiteDatabase removeDB = dbHelper.getReadableDatabase();
-        removeDB.delete(NotesInstanceContract.NotesEntry.TABLE_NAME, NotesInstanceContract.NotesEntry.COLUMN_NAME_CREATED_DATE + "=?", new String[]{ni.getCreatedDate()});
-        removeDB.close();
-    }
-
-    public void addBackToDB(View view, NotesInstance ni){
-        final NoteDBHelper dbHelper = new NoteDBHelper(view.getContext());
-        final SQLiteDatabase addBackToDB = dbHelper.getReadableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_CREATED_DATE, ni.getCreatedDate());
-        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_LAST_MODIFIED_DATE, ni.getLastModifiedDate());
-        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_FOR_WHOM, ni.getForWhom());
-        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_TITLE, ni.getTitle());
-        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_DATA, ni.getData());
-        values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_HAS_POSTED, 0); // where 0 is false for sqlite
-
-        addBackToDB.insert(NotesInstanceContract.NotesEntry.TABLE_NAME, null, values);
-        addBackToDB.close();
-    }
-
 }
