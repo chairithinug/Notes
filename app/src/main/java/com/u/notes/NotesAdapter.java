@@ -13,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import java.util.ArrayList;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
@@ -58,11 +57,21 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         noteItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int pos = MainActivity.recyclerView.getChildAdapterPosition(view);
+                int pos;
+                if (SearchNoteActivity.active) {
+                    pos = SearchNoteActivity.searchRecyclerView.getChildAdapterPosition(view);
+                } else {
+                    pos = MainActivity.recyclerView.getChildAdapterPosition(view);
+                }
                 if (pos >= 0 && pos < getItemCount()) {
 //                    Log.d(TAG, "short click");
 //                    Toast.makeText(view.getContext(), "" + pos, Toast.LENGTH_SHORT).show();
-                    NotesInstance ni = MainActivity.notesList.get(pos);
+                    NotesInstance ni;
+                    if (SearchNoteActivity.active) {
+                        ni = SearchNoteActivity.searchNotesList.get(pos);
+                    } else {
+                        ni = MainActivity.notesList.get(pos);
+                    }
                     Log.d(TAG, ni.toString());
 
 //                    setHighLightSelected(pos); // User does not really see this
@@ -79,10 +88,20 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
         noteItemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                int pos = MainActivity.recyclerView.getChildAdapterPosition(view);
+                int pos;
+                if (SearchNoteActivity.active) {
+                    pos = SearchNoteActivity.searchRecyclerView.getChildAdapterPosition(view);
+                } else {
+                    pos = MainActivity.recyclerView.getChildAdapterPosition(view);
+                }
 //                MainActivity.recyclerView.setBackgroundColor(Color.BLUE);
                 if (pos >= 0 && pos < getItemCount()) {
-                    NotesInstance ni = MainActivity.notesList.get(pos);
+                    NotesInstance ni;
+                    if (SearchNoteActivity.active) {
+                        ni = SearchNoteActivity.searchNotesList.get(pos);
+                    } else {
+                        ni = MainActivity.notesList.get(pos);
+                    }
                     Log.d(TAG, ni.toString());
 
                     setHighLightSelected(pos);
@@ -125,7 +144,10 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
 
     public void deleteNote(final View view, NotesInstance ni) {
         DeleteDialogFragment frag = new DeleteDialogFragment(view, ni);
-        frag.show(MainActivity.fm, "DeleteDialog");
+        if (SearchNoteActivity.active)
+            frag.show(SearchNoteActivity.fm, "DeleteDialog");
+        else
+            frag.show(MainActivity.fm, "DeleteDialog");
     }
 
     public void setHighLightSelected(int pos) {

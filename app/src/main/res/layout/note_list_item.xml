@@ -59,7 +59,7 @@
             android:layout_weight="1"
             android:maxLines="1"
             android:textAlignment="viewEnd"
-            android:textSize="18sp" />
+            android:textSize="15sp" />
     </LinearLayout>
 
 </RelativeLayout>

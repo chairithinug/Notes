@@ -34,26 +34,49 @@ public class DeleteDialogFragment extends DialogFragment {
         builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Log.d(TAG, "Yes, delete!");
-                MainActivity.adapter.setHighLightSelected(RecyclerView.NO_POSITION);
-                MainActivity.notesList.remove(remove);
-                MainActivity.removeFromDB(view, remove);
+                // on Search page
+                if (SearchNoteActivity.active) {
+                    SearchNoteActivity.searchAdapter.setHighLightSelected(RecyclerView.NO_POSITION);
+                    SearchNoteActivity.searchNotesList.remove(remove);
 
-                Snackbar.make(MainActivity.recyclerView, "Note Deleted", Snackbar.LENGTH_LONG)
-                        .setAction("Undo", new View.OnClickListener() {
-                            public void onClick(View v) {
-                                NotesInstance ni = thisDialog.remove;
-                                MainActivity.addBackToDB(v, ni);
-                                MainActivity.notesList.add(ni);
-                                MainActivity.adapter.notifyDataSetChanged(); // refresh recyclerView data
-                            }
-                        }).show();
+                    MainActivity.removeFromDB(view, remove);
+
+                    Snackbar.make(SearchNoteActivity.searchRecyclerView, "Note Deleted", Snackbar.LENGTH_LONG)
+                            .setAction("Undo", new View.OnClickListener() {
+                                public void onClick(View v) {
+                                    NotesInstance ni = thisDialog.remove;
+                                    MainActivity.addBackToDB(v, ni);
+                                    SearchNoteActivity.searchNotesList.add(ni);
+                                    SearchNoteActivity.searchAdapter.notifyDataSetChanged(); // refresh recyclerView data
+
+                                }
+                            }).show();
+                } else {
+                    MainActivity.adapter.setHighLightSelected(RecyclerView.NO_POSITION);
+                    MainActivity.notesList.remove(remove);
+                    MainActivity.removeFromDB(view, remove);
+
+                    Snackbar.make(MainActivity.recyclerView, "Note Deleted", Snackbar.LENGTH_LONG)
+                            .setAction("Undo", new View.OnClickListener() {
+                                public void onClick(View v) {
+                                    NotesInstance ni = thisDialog.remove;
+                                    MainActivity.addBackToDB(v, ni);
+                                    MainActivity.notesList.add(ni);
+                                    MainActivity.adapter.notifyDataSetChanged(); // refresh recyclerView data
+                                }
+                            }).show();
+                }
             }
         });
 
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Log.d(TAG, "No, stay!");
-                MainActivity.adapter.setHighLightSelected(RecyclerView.NO_POSITION);
+                if (SearchNoteActivity.active) {
+                    SearchNoteActivity.searchAdapter.setHighLightSelected(RecyclerView.NO_POSITION);
+                } else {
+                    MainActivity.adapter.setHighLightSelected(RecyclerView.NO_POSITION);
+                }
             }
         });
         builder.setMessage("Do you want to delete this note?")

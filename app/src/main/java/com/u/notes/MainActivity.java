@@ -1,9 +1,11 @@
 package com.u.notes;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -11,8 +13,11 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.os.Environment;
 import android.widget.PopupMenu;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -26,7 +31,17 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
+
+import static com.u.notes.NoteDBHelper.DATABASE_NAME;
 
 public class MainActivity extends FragmentActivity {
 
@@ -51,6 +66,9 @@ public class MainActivity extends FragmentActivity {
         fm = getSupportFragmentManager();
         context = getApplicationContext();
 
+        // ask for permission
+        askWriteExternalStoragePermission();
+
         FloatingActionButton fab_add = findViewById(R.id.fab_add);
         fab_add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,12 +82,18 @@ public class MainActivity extends FragmentActivity {
         fab_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                try {
+//                    exportNotes(notesList);
+//                    exportDB(context);
+//                } catch (IOException e) {
+//                    Log.d(TAG, e.getMessage());
+//                }
                 // TODO New Activity
-//                Intent newIntent = new Intent(view.getContext(), SearchNoteActivity.class);
-//                startActivityForResult(newIntent, ConstantVar.REQUEST_CODE_SEARCH_NOTE);
+                Intent newIntent = new Intent(view.getContext(), SearchNoteActivity.class);
+                startActivityForResult(newIntent, ConstantVar.REQUEST_CODE_SEARCH_NOTE);
 
-                Snackbar.make(view, "Search", Snackbar.LENGTH_SHORT)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Search", Snackbar.LENGTH_SHORT)
+//                        .setAction("Action", null).show();
             }
         });
 
@@ -126,11 +150,12 @@ public class MainActivity extends FragmentActivity {
                 Snackbar.make(recyclerView, toastToBeDisplayed, Snackbar.LENGTH_SHORT).show();
                 refreshRecyclerView();
             } else if (requestCode == ConstantVar.REQUEST_CODE_SEARCH_NOTE) {
+                // TODO Return
 //            Bundle ret = data.getExtras();
 //            NotesInstance ni = (NotesInstance) ret.getParcelable("notesInstance");
 //            saveInstanceData(ni);
-//            Snackbar.make(recyclerView, "", Snackbar.LENGTH_SHORT).show();
-//            refreshRecyclerView();
+            Snackbar.make(recyclerView, "Return from Search", Snackbar.LENGTH_SHORT).show();
+                refreshRecyclerView();
             }
         } else {
             Log.d(TAG, "Result First User");
@@ -254,4 +279,112 @@ public class MainActivity extends FragmentActivity {
         adapter = new NotesAdapter(notesList);
         recyclerView.setAdapter(adapter);
     }
+
+    public static void exportDB(Context context) throws IOException {
+        //Open your local db as the input stream
+        String inFileName = context.getDatabasePath(DATABASE_NAME).getPath();
+        File dbFile = new File(inFileName);
+        FileInputStream fis = new FileInputStream(dbFile);
+
+        String outFileName = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
+
+        //Open the empty db as the output stream
+        OutputStream output = new FileOutputStream(outFileName);
+
+        //transfer bytes from the inputfile to the outputfile
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = fis.read(buffer)) > 0) {
+            output.write(buffer, 0, length);
+        }
+        //Close the streams
+        output.flush();
+        output.close();
+        fis.close();
+    }
+
+    public static void exportNotes(ArrayList<NotesInstance> noteslist) throws IOException {
+        String fileName = "Notes.txt";
+        JSONArray ja = new JSONArray();
+        for (NotesInstance ni : noteslist) {
+            Log.d(TAG, ni.toString());
+            ja.put(ni.toJSON());
+        }
+        Log.d(TAG, ja.toString());
+
+        String toBeExported = ja.toString();
+
+        File outFile = new File(Environment.getExternalStorageDirectory() + "/" + fileName);
+        Log.d(TAG, outFile.getPath());
+        FileWriter fw = new FileWriter(outFile);
+        fw.write(toBeExported);
+        fw.flush();
+        fw.close();
+    }
+
+    public void askWriteExternalStoragePermission() {
+
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            Snackbar.make(findViewById(R.id.rv_home), "Write Permission Denied", Snackbar.LENGTH_SHORT).show();
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Log.d(TAG, "Rationale");
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                // Happen the second time user opens the app, if first denied
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        ConstantVar.PERMISSION_WRITE_EXTERNAL_STORAGE);
+            } else {
+                Log.d(TAG, "ask");
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        ConstantVar.PERMISSION_WRITE_EXTERNAL_STORAGE);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        } else {
+            // Permission has already been granted
+            Snackbar.make(findViewById(R.id.rv_home), "Write Permission Granted", Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case ConstantVar.PERMISSION_WRITE_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    Log.d(TAG, "Write External Storage Permission Granted");
+                    Snackbar.make(findViewById(R.id.rv_home), "Write Permission Granted", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Log.d(TAG, "Write External Storage Permission Denied");
+                    Snackbar.make(findViewById(R.id.rv_home), "Write Permission Denied", Snackbar.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+        }
+    }
+
 }

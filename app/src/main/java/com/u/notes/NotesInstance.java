@@ -100,6 +100,10 @@ public class NotesInstance implements Parcelable {
 
     @Override
     public String toString() {
+        return toJSON().toString();
+    }
+
+    public JSONObject toJSON() {
         JSONObject jo = new JSONObject();
         try {
             jo.put("createdDate", createdDate);
@@ -107,9 +111,9 @@ public class NotesInstance implements Parcelable {
             jo.put("forWhom", forWhom);
             jo.put("title", title);
             jo.put("data", data);
-            return jo.toString();
+            return jo;
         } catch (JSONException e) {
-            return e.getMessage();
+            return null;
         }
     }
 }

@@ -6,4 +6,5 @@ public class ConstantVar {
     public static final int MAX_DATA_DISPLAY_LENGTH = 20;
     public static final int MAX_TITLE_DISPLAY_LENGTH = 15;
     public static final int MAX_FOR_WHOM_DISPLAY_LENGTH = 10;
+    public static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 99;
 }
