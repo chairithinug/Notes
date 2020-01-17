@@ -6,10 +6,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Typeface;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -20,7 +18,6 @@ import android.widget.PopupMenu;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -85,18 +82,23 @@ public class MainActivity extends FragmentActivity {
         fab_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                try {
-//                    exportNotes(notesList);
-//                    exportDB(context);
-//                } catch (IOException e) {
-//                    Log.d(TAG, e.getMessage());
-//                }
-                // TODO New Activity
+
                 Intent newIntent = new Intent(view.getContext(), SearchNoteActivity.class);
                 startActivityForResult(newIntent, ConstantVar.REQUEST_CODE_SEARCH_NOTE);
 
-//                Snackbar.make(view, "Search", Snackbar.LENGTH_SHORT)
-//                        .setAction("Action", null).show();
+            }
+        });
+
+        FloatingActionButton fab_export = findViewById(R.id.fab_export);
+        fab_export.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    exportNotes(notesList);
+                    Snackbar.make(recyclerView, "Note(s) Exported", Snackbar.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    Log.d(TAG, e.getMessage());
+                }
             }
         });
 
@@ -121,14 +123,12 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
-//        Typeface typeface = ResourcesCompat.getFont(getApplicationContext(),
-//                R.font.helveticaneue_regular);
-
 //        NoteDBHelper.deleteDatabase(context); // TODO
 
         recyclerView = findViewById(R.id.rv_home);
         recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         notesList = new ArrayList<NotesInstance>();
+
         loadInstanceData(NotesInstanceContract.NotesEntry.COLUMN_NAME_LAST_MODIFIED_DATE);
 
         refreshRecyclerView();
@@ -150,7 +150,7 @@ public class MainActivity extends FragmentActivity {
                     saveInstanceData(ni);
                     toastToBeDisplayed = "Note Added";
                 } else {
-                    modifyInstanceData(ni);
+                    modifyInstanceData(this, ni);
                     toastToBeDisplayed = "Note Edited";
                 }
                 Snackbar.make(recyclerView, toastToBeDisplayed, Snackbar.LENGTH_SHORT).show();
@@ -160,7 +160,7 @@ public class MainActivity extends FragmentActivity {
 //            Bundle ret = data.getExtras();
 //            NotesInstance ni = (NotesInstance) ret.getParcelable("notesInstance");
 //            saveInstanceData(ni);
-            Snackbar.make(recyclerView, "Return from Search", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(recyclerView, "Return from Search", Snackbar.LENGTH_SHORT).show();
                 refreshRecyclerView();
             }
         } else {
@@ -223,12 +223,20 @@ public class MainActivity extends FragmentActivity {
         readDB.close();
     }
 
-    private void modifyInstanceData(NotesInstance new_ni) {
+    public static void modifyInstanceData(Context context, NotesInstance new_ni) {
         final NoteDBHelper dbHelper = new NoteDBHelper(context);
         final SQLiteDatabase modifyDB = dbHelper.getReadableDatabase();
 
+        // FIXME Consider moving these out of the function
         notesList.remove(AddNoteActivity.argInstance); // remove old instance
         notesList.add(new_ni); // create a new one
+
+        // FIXME Also
+        if (SearchNoteActivity.active) {
+            SearchNoteActivity.searchNotesList.remove(AddNoteActivity.argInstance);
+            SearchNoteActivity.searchNotesList.add(new_ni);
+        }
+
         ContentValues values = new ContentValues();
         values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_CREATED_DATE, new_ni.getCreatedDate());
         values.put(NotesInstanceContract.NotesEntry.COLUMN_NAME_LAST_MODIFIED_DATE, new_ni.getLastModifiedDate());

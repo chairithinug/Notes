@@ -41,44 +41,81 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20sp"
+            android:layout_marginHorizontal="5sp"
             android:orientation="horizontal"
             android:weightSum="4">
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
+                android:maxLines="1"
                 android:layout_weight="1"
                 android:text="Filter:"
                 android:textSize="15sp" />
 
-            <CheckBox
-                android:id="@+id/checkbox_for_whom"
+            <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onCheckboxClicked"
-                android:text="For Whom"
-                android:textSize="15sp" />
+                android:layout_height="fill_parent"
+                android:layout_marginHorizontal="5sp"
+                android:checkedButton="@+id/radio_title"
+                android:orientation="horizontal"
+                android:weightSum="3">
 
-            <CheckBox
-                android:id="@+id/checkbox_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onCheckboxClicked"
-                android:text="Title"
-                android:textSize="15sp" />
+                <RadioButton
+                    android:id="@+id/radio_for_whom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:onClick="onRadioButtonClicked"
+                    android:text="For whom"
+                    android:textSize="15sp" />
 
-            <CheckBox
-                android:id="@+id/checkbox_data"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onCheckboxClicked"
-                android:text="Data"
-                android:textSize="15sp" />
+                <RadioButton
+                    android:id="@+id/radio_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:onClick="onRadioButtonClicked"
+                    android:text="Title"
+                    android:textSize="15sp" />
+
+                <RadioButton
+                    android:id="@+id/radio_data"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:onClick="onRadioButtonClicked"
+                    android:text="Data"
+                    android:textSize="15sp" />
+            </RadioGroup>
+
+            <!--            <CheckBox-->
+            <!--                android:id="@+id/checkbox_for_whom"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_weight="1"-->
+            <!--                android:onClick="onCheckboxClicked"-->
+            <!--                android:text="For Whom"-->
+            <!--                android:textSize="15sp" />-->
+
+            <!--            <CheckBox-->
+            <!--                android:id="@+id/checkbox_title"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_weight="1"-->
+            <!--                android:onClick="onCheckboxClicked"-->
+            <!--                android:text="Title"-->
+            <!--                android:textSize="15sp" />-->
+
+            <!--            <CheckBox-->
+            <!--                android:id="@+id/checkbox_data"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_weight="1"-->
+            <!--                android:onClick="onCheckboxClicked"-->
+            <!--                android:text="Data"-->
+            <!--                android:textSize="15sp" />-->
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
@@ -86,10 +85,10 @@ public class AddNoteActivity extends FragmentActivity {
     // to get rid of default back button on Android
     @Override
     public void onBackPressed() {
-        // try create an unempty note, ask before
+        // try create an unempty note, ask before exiting
         if (isCreate && (!for_whom.getText().toString().isEmpty() || !title.getText().toString().isEmpty() || !data.getText().toString().isEmpty()))
             anyMod = true;
-        // edit and make changes, ask before
+        // edit and make changes, ask before exiting
         if (!isCreate && !isSameText(argInstance))
             anyMod = true;
         if (anyMod) {

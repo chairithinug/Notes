@@ -89,6 +89,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> 
             @Override
             public boolean onLongClick(View view) {
                 int pos;
+                Log.d(TAG, "Long");
                 if (SearchNoteActivity.active) {
                     pos = SearchNoteActivity.searchRecyclerView.getChildAdapterPosition(view);
                 } else {
