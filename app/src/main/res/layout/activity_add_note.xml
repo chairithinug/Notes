@@ -12,7 +12,8 @@
         android:gravity="top|left"
         android:hint="Title"
         android:inputType="text"
-        android:textSize="25sp" />
+        android:textSize="25sp"
+        android:textStyle="bold"/>
 
     <EditText
         android:id="@+id/et_for_whom"

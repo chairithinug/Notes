@@ -6,8 +6,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -18,6 +20,7 @@ import android.widget.PopupMenu;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -117,6 +120,9 @@ public class MainActivity extends FragmentActivity {
                 dropDownMenu.show();
             }
         });
+
+//        Typeface typeface = ResourcesCompat.getFont(getApplicationContext(),
+//                R.font.helveticaneue_regular);
 
 //        NoteDBHelper.deleteDatabase(context); // TODO
 

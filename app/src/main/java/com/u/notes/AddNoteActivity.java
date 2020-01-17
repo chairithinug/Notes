@@ -42,11 +42,11 @@ public class AddNoteActivity extends FragmentActivity {
         data = findViewById(R.id.et_data);
 
 //         Font
-        Typeface tf = ResourcesCompat.getFont(getApplicationContext(),
-                R.font.angsa);
-        for_whom.setTypeface(tf);
-        title.setTypeface(tf);
-        data.setTypeface(tf);
+//        Typeface tf = ResourcesCompat.getFont(getApplicationContext(),
+//                R.font.angsa);
+//        for_whom.setTypeface(tf);
+//        title.setTypeface(tf);
+//        data.setTypeface(tf);
 
         final Intent thisIntent = getIntent();
         isCreate = thisIntent.getExtras().getBoolean("isCreate");
@@ -66,7 +66,7 @@ public class AddNoteActivity extends FragmentActivity {
             String toBeDisplayed = "Save";
             create_save.setText(toBeDisplayed);
         }
-        create_save.setTypeface(tf);
+//        create_save.setTypeface(tf);
         create_save.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (data.getText().toString().isEmpty()) {
