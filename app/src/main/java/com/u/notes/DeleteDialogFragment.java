@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -38,10 +39,10 @@ public class DeleteDialogFragment extends DialogFragment {
                 if (SearchNoteActivity.active) {
                     SearchNoteActivity.searchAdapter.setHighLightSelected(RecyclerView.NO_POSITION);
                     SearchNoteActivity.searchNotesList.remove(remove);
+                    SearchNoteActivity.searchAdapter.notifyDataSetChanged();
 
                     MainActivity.removeFromDB(view, remove);
-
-                    Snackbar.make(SearchNoteActivity.searchRecyclerView, "Note Deleted", Snackbar.LENGTH_LONG)
+                    Snackbar snackbar = Snackbar.make(SearchNoteActivity.searchRecyclerView, "Note Deleted", Snackbar.LENGTH_LONG)
                             .setAction("Undo", new View.OnClickListener() {
                                 public void onClick(View v) {
                                     NotesInstance ni = thisDialog.remove;
@@ -50,13 +51,19 @@ public class DeleteDialogFragment extends DialogFragment {
                                     SearchNoteActivity.searchAdapter.notifyDataSetChanged(); // refresh recyclerView data
 
                                 }
-                            }).show();
+                            });
+                    snackbar.setActionTextColor(Color.WHITE);
+                    snackbar.show();
+
                 } else {
+                    Log.d(TAG, "In main");
                     MainActivity.adapter.setHighLightSelected(RecyclerView.NO_POSITION);
                     MainActivity.notesList.remove(remove);
+                    MainActivity.adapter.notifyDataSetChanged();
+                    Log.d(TAG,"removed from list");
                     MainActivity.removeFromDB(view, remove);
-
-                    Snackbar.make(MainActivity.recyclerView, "Note Deleted", Snackbar.LENGTH_LONG)
+                    Log.d(TAG, "removed from DB");
+                    Snackbar snackbar = Snackbar.make(MainActivity.recyclerView, "Note Deleted", Snackbar.LENGTH_LONG)
                             .setAction("Undo", new View.OnClickListener() {
                                 public void onClick(View v) {
                                     NotesInstance ni = thisDialog.remove;
@@ -64,7 +71,9 @@ public class DeleteDialogFragment extends DialogFragment {
                                     MainActivity.notesList.add(ni);
                                     MainActivity.adapter.notifyDataSetChanged(); // refresh recyclerView data
                                 }
-                            }).show();
+                            });
+                    snackbar.setActionTextColor(Color.WHITE);
+                    snackbar.show();
                 }
             }
         });
