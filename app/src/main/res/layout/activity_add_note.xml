@@ -8,11 +8,11 @@
         android:id="@+id/et_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20sp"
+        android:layout_marginHorizontal="5sp"
         android:gravity="top|left"
         android:hint="Title"
         android:inputType="text"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:textStyle="bold"/>
 
     <EditText
@@ -20,22 +20,22 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/et_title"
-        android:layout_marginHorizontal="20sp"
+        android:layout_marginHorizontal="5sp"
         android:gravity="top|left"
         android:hint="For This Person"
         android:inputType="text"
-        android:textSize="25sp" />
+        android:textSize="20sp" />
 
     <EditText
         android:id="@+id/et_data"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/et_for_whom"
-        android:layout_marginHorizontal="20sp"
+        android:layout_marginHorizontal="5sp"
         android:gravity="top|left"
         android:hint="My Note"
         android:inputType="textMultiLine"
-        android:textSize="25sp" />
+        android:textSize="20sp" />
 
     <RelativeLayout
         android:id="@+id/rl_inner"
